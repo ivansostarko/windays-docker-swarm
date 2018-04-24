@@ -1,0 +1,45 @@
+
+version: '3'
+
+services:
+  portainer:
+    image: portainer/portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    networks:
+      - default-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s 
+      placement:
+        constraints: [node.role == manager]
+     
+        
+  web:
+    image: php:7.2.2-apache
+
+    volumes:
+      - /home/isostarko/docker-compose/windays-docker-swarm/php/:/var/www/html/
+    ports:
+      - "80:80"
+    stdin_open: true
+    tty: true           
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s         
+     
+networks:
+  default-net:
